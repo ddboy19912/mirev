@@ -22,10 +22,10 @@
 - [x] Initialize project repository
 - [x] Set up Next.js app
 - [x] Install TypeScript, Tailwind, and UI dependencies
-- [ ] Configure linting, formatting, and environment variables
+- [x] Configure linting, formatting, and environment variables
 - [x] Add wallet adapter setup
 - [x] Add database and Prisma setup
-- [ ] Create base app layout and navigation
+- [x] Create base app layout and navigation
 
 ## 4. Data Model
 

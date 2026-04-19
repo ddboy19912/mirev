@@ -1,4 +1,5 @@
 import { AuthCard } from "@/components/auth/auth-card";
+import { UsdcDepositFlowCard } from "@/components/deposits/usdc-deposit-flow-card";
 import { KaminoExecutionCard } from "@/components/strategies/kamino-execution-card";
 import { getCurrentSession } from "@/lib/auth";
 import { getDatabaseStatus } from "@/lib/database-status";
@@ -6,11 +7,13 @@ import { resolveExecutionMode } from "@/lib/strategies/execution-mode";
 import {
   formatApyCopy,
   formatExecutionCopy,
+  formatExecutionTimestamp,
   formatLiquidityCopy,
   formatStrategyRouteCopy,
   getRecentStrategyExecutionLogs,
 } from "@/lib/strategies/feed";
 import { kaminoStrategyAdapter } from "@/lib/strategies/kamino-strategy-adapter";
+import { getTreasuryDashboard } from "@/lib/treasury/dashboard";
 
 export const dynamic = "force-dynamic";
 
@@ -49,6 +52,7 @@ export default async function Home({
     kaminoStrategyAdapter.getApy(),
     kaminoStrategyAdapter.getLiquidityState(),
   ]);
+  const treasury = await getTreasuryDashboard(session?.userId ?? null);
   const recentExecutions = await getRecentStrategyExecutionLogs(
     session?.userId ?? null,
   );
@@ -99,39 +103,40 @@ export default async function Home({
         <section className="grid gap-4 md:grid-cols-3">
           <article className="rounded-[1.5rem] border border-slate-200 bg-white p-6 shadow-sm">
             <p className="text-sm tracking-[0.2em] text-slate-500 uppercase">
-              Database
+              Total Balance
             </p>
             <h2 className="mt-3 text-2xl font-semibold text-slate-950">
-              {strategy.protocol}
+              {treasury.totalBalance} USDC
             </h2>
             <p className="mt-2 text-sm leading-6 text-slate-600">
-              Lending venue chosen for MVP earn routing on Solana with USDC as
-              the first supported earn asset.
+              Sum of the persisted Spend, Save, and Earn buckets currently
+              tracked for this wallet session.
             </p>
           </article>
 
           <article className="rounded-[1.5rem] border border-slate-200 bg-white p-6 shadow-sm">
             <p className="text-sm tracking-[0.2em] text-slate-500 uppercase">
-              ORM
+              Available Now
             </p>
             <h2 className="mt-3 text-2xl font-semibold text-slate-950">
-              {strategy.token} Supply
+              {treasury.availableNowBalance} USDC
             </h2>
             <p className="mt-2 text-sm leading-6 text-slate-600">
-              Earn funds are supplied into Kamino Lend as the first strategy
-              rail, while Spend and Save remain outside the yield venue.
+              Spend stays liquid in the wallet while Save remains reserved and
+              Earn is routed to the approved yield venue.
             </p>
           </article>
 
           <article className="rounded-[1.5rem] border border-slate-200 bg-white p-6 shadow-sm">
             <p className="text-sm tracking-[0.2em] text-slate-500 uppercase">
-              Target
+              Active Profile
             </p>
             <h2 className="mt-3 text-2xl font-semibold text-slate-950">
-              {strategy.id}
+              {treasury.activeProfile ?? "Not set"}
             </h2>
             <p className="mt-2 text-sm leading-6 text-slate-600">
-              {strategy.summary}
+              The active autopilot preset determines how connected wallet USDC
+              is split across Spend, Save, and Earn.
             </p>
           </article>
         </section>
@@ -179,33 +184,53 @@ export default async function Home({
         </section>
 
         <section className="grid gap-4 md:grid-cols-2">
+          <UsdcDepositFlowCard
+            initialSession={session}
+            executionMode={executionMode}
+          />
+
           <article className="rounded-[1.75rem] border border-slate-200 bg-white p-7 shadow-sm">
             <p className="text-sm tracking-[0.2em] text-slate-500 uppercase">
-              Approved Earn Rail
+              Bucket Balances
             </p>
-            <h2 className="mt-3 text-3xl font-semibold tracking-tight text-slate-950">
-              {strategy.protocol}
-            </h2>
-            <p className="mt-3 text-sm leading-7 text-slate-600">
+            <div className="mt-4 grid gap-3 sm:grid-cols-3">
+              <div className="rounded-2xl bg-slate-50 p-4">
+                <p className="text-xs tracking-[0.16em] text-slate-500 uppercase">
+                  Spend
+                </p>
+                <p className="mt-2 text-xl font-semibold text-slate-950">
+                  {treasury.spendBalance} USDC
+                </p>
+              </div>
+              <div className="rounded-2xl bg-slate-50 p-4">
+                <p className="text-xs tracking-[0.16em] text-slate-500 uppercase">
+                  Save
+                </p>
+                <p className="mt-2 text-xl font-semibold text-slate-950">
+                  {treasury.saveBalance} USDC
+                </p>
+              </div>
+              <div className="rounded-2xl bg-slate-50 p-4">
+                <p className="text-xs tracking-[0.16em] text-slate-500 uppercase">
+                  Earn
+                </p>
+                <p className="mt-2 text-xl font-semibold text-slate-950">
+                  {treasury.earnBalance} USDC
+                </p>
+              </div>
+            </div>
+            <p className="mt-5 text-sm leading-7 text-slate-600">
               {strategy.riskNote}
             </p>
-            <div className="mt-5 rounded-2xl bg-slate-50 p-4">
-              <p className="text-xs tracking-[0.2em] text-slate-500 uppercase">
-                Dashboard language
-              </p>
-              <p className="mt-2 text-sm font-medium text-slate-900">
-                Earn funds are routed to Kamino Lend.
-              </p>
-            </div>
           </article>
+        </section>
 
+        <section className="grid gap-4 md:grid-cols-2">
           <KaminoExecutionCard
             initialSession={session}
             executionMode={executionMode}
           />
-        </section>
 
-        <section className="grid gap-4 md:grid-cols-2">
           <article className="rounded-[1.75rem] border border-slate-200 bg-white p-7 shadow-sm">
             <p className="text-sm tracking-[0.2em] text-slate-500 uppercase">
               Automation Feed
@@ -213,7 +238,15 @@ export default async function Home({
             <div className="mt-4 space-y-3 text-sm leading-6 text-slate-600">
               {recentExecutions.length > 0 ? (
                 recentExecutions.map((execution) => (
-                  <p key={execution.id}>{formatExecutionCopy(execution)}</p>
+                  <div
+                    key={execution.id}
+                    className="rounded-2xl bg-slate-50 p-4"
+                  >
+                    <p className="text-xs tracking-[0.16em] text-slate-500 uppercase">
+                      {formatExecutionTimestamp(execution.createdAt)}
+                    </p>
+                    <p className="mt-2">{formatExecutionCopy(execution)}</p>
+                  </div>
                 ))
               ) : (
                 <p>
@@ -230,21 +263,18 @@ export default async function Home({
               What To Test Now
             </p>
             <ol className="mt-4 grid gap-3 text-sm leading-6 text-slate-600">
+              <li>1. Sign in with the currently connected wallet.</li>
               <li>
-                1. Start local Postgres with `pnpm db:up` if it is not already
-                running.
+                2. Refresh the connected wallet USDC balance in the deposit flow
+                card.
               </li>
               <li>
-                2. Sign into Mirev with the wallet you want attached to the
-                session.
+                3. Choose Safe, Balanced, or Growth and allocate the detected
+                balance.
               </li>
               <li>
-                3. Use mock mode to demo the flow without spending funds, or
-                switch to live mode when you are ready.
-              </li>
-              <li>
-                4. Confirm the resulting action appears in the automation feed
-                after refresh.
+                4. In live mode, approve the Kamino deposit for the Earn portion
+                and confirm the feed updates.
               </li>
             </ol>
           </article>

@@ -41,8 +41,8 @@
 
 - [x] Build wallet connection flow
 - [x] Build signed-session auth flow
-- [ ] Build USDC deposit flow
-- [ ] Build autopilot profile selection: Safe / Balanced / Growth
+- [x] Build USDC deposit flow
+- [x] Build autopilot profile selection: Safe / Balanced / Growth
 - [ ] Build custom allocation rule flow for Spend / Save / Earn
 - [ ] Build minimum liquidity buffer setting
 - [ ] Build autopilot enable/disable control
@@ -50,9 +50,9 @@
 ## 6. Automation Engine
 
 - [ ] Implement deposit detection or simulated deposit trigger
-- [ ] Implement allocation logic for Spend / Save / Earn
+- [x] Implement allocation logic for Spend / Save / Earn
 - [ ] Implement smart liquidity buffer logic
-- [ ] Implement automatic routing of idle funds into earn
+- [x] Implement automatic routing of idle funds into earn
 - [ ] Implement move-from-earn-to-spend flow
 - [ ] Add clear status handling for success / pending / failed actions
 
@@ -68,9 +68,9 @@
 ## 8. Dashboard
 
 - [x] Build home/dashboard screen
-- [ ] Show total balance
-- [ ] Show available-now balance
-- [ ] Show Spend / Save / Earn balances
+- [x] Show total balance
+- [x] Show available-now balance
+- [x] Show Spend / Save / Earn balances
 - [x] Show current APY
 - [x] Show recent automated actions
 - [ ] Show liquidity buffer status
@@ -78,8 +78,8 @@
 ## 9. Automation Feed
 
 - [x] Build plain-language activity feed
-- [ ] Log deposit received events
-- [ ] Log funds allocated events
+- [x] Log deposit received events
+- [x] Log funds allocated events
 - [x] Log funds routed to earn events
 - [x] Log funds returned to spend events
 - [ ] Add timestamps and transaction status

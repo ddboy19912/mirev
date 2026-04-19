@@ -84,6 +84,24 @@ Why:
 - simplest Web3-native MVP flow
 - avoids heavy auth complexity early
 
+### Custody Model
+
+- MVP custody model: `app-assisted non-custodial`
+
+What this means:
+
+- user funds remain in user-controlled wallets or transparent onchain positions
+- Mirev does not take omnibus custody of funds
+- Mirev prepares transactions, routing logic, and policy-driven execution flows
+- users authorize critical onchain actions with signatures
+- policy state, session state, strategy state, and automation history remain offchain in the app backend
+
+Why:
+
+- preserves the product promise of automation without taking on custodial risk
+- matches the existing preference for user-controlled wallets and user-signed transactions
+- avoids the complexity of delegated execution or custom account-abstraction infrastructure in MVP
+
 ### Onchain Program Strategy
 
 For the hackathon MVP, prefer **offchain orchestration with onchain execution** over building a custom Solana program immediately.
@@ -121,6 +139,14 @@ Examples to evaluate:
 - stable liquidity vault with clear redemption profile
 
 The key is not maximum APY. The key is trust, clarity, and reversibility.
+
+MVP decision:
+
+- use `Kamino Lend` as the single approved launch venue
+- start with `USDC` supply only
+- treat the strategy key as `kamino-usdc-supply`
+- keep `Spend` fully liquid outside the venue
+- use Mirev policy logic to move funds back from Kamino into `Spend` when needed
 
 ### Notifications and Analytics
 
@@ -178,17 +204,20 @@ Why:
 ### Core Tables
 
 `users`
+
 - id
 - created_at
 - default_currency
 
 `wallets`
+
 - id
 - user_id
 - address
 - wallet_type
 
 `bucket_policies`
+
 - id
 - user_id
 - spend_percent
@@ -198,6 +227,7 @@ Why:
 - is_active
 
 `accounts`
+
 - id
 - user_id
 - bucket_type
@@ -205,6 +235,7 @@ Why:
 - current_balance
 
 `strategy_allocations`
+
 - id
 - user_id
 - strategy_name
@@ -213,6 +244,7 @@ Why:
 - status
 
 `automation_actions`
+
 - id
 - user_id
 - action_type

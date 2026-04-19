@@ -1,0 +1,9 @@
+import { clearCurrentSession } from "@/lib/auth";
+
+export const dynamic = "force-dynamic";
+
+export async function POST() {
+  await clearCurrentSession();
+
+  return Response.json({ ok: true });
+}

@@ -10,21 +10,21 @@
 
 ## 2. Technical Decisions
 
-- [ ] Confirm frontend stack: Next.js + TypeScript + Tailwind + shadcn/ui
-- [ ] Confirm backend approach: Next.js Route Handlers or Hono
-- [ ] Confirm database: Postgres + Prisma
-- [ ] Confirm wallet/auth flow: wallet connect + signed session
-- [ ] Choose one Solana yield venue for MVP
-- [ ] Define whether MVP is fully non-custodial or app-assisted non-custodial
+- [x] Confirm frontend stack: Next.js + TypeScript + Tailwind + shadcn/ui
+- [x] Confirm backend approach: Next.js Route Handlers or Hono
+- [x] Confirm database: Postgres + Prisma
+- [x] Confirm wallet/auth flow: wallet connect + signed session
+- [x] Choose one Solana yield venue for MVP
+- [x] Define whether MVP is fully non-custodial or app-assisted non-custodial
 
 ## 3. App Setup
 
-- [ ] Initialize project repository
-- [ ] Set up Next.js app
-- [ ] Install TypeScript, Tailwind, and UI dependencies
+- [x] Initialize project repository
+- [x] Set up Next.js app
+- [x] Install TypeScript, Tailwind, and UI dependencies
 - [ ] Configure linting, formatting, and environment variables
-- [ ] Add wallet adapter setup
-- [ ] Add database and Prisma setup
+- [x] Add wallet adapter setup
+- [x] Add database and Prisma setup
 - [ ] Create base app layout and navigation
 
 ## 4. Data Model
@@ -39,8 +39,8 @@
 
 ## 5. Core Product Flows
 
-- [ ] Build wallet connection flow
-- [ ] Build signed-session auth flow
+- [x] Build wallet connection flow
+- [x] Build signed-session auth flow
 - [ ] Build USDC deposit flow
 - [ ] Build autopilot profile selection: Safe / Balanced / Growth
 - [ ] Build custom allocation rule flow for Spend / Save / Earn
@@ -58,8 +58,8 @@
 
 ## 7. Yield Integration
 
-- [ ] Pick one approved yield strategy
-- [ ] Implement strategy adapter interface
+- [x] Pick one approved yield strategy
+- [x] Implement strategy adapter interface
 - [ ] Implement deposit into strategy
 - [ ] Implement withdraw from strategy
 - [ ] Surface current APY and liquidity characteristics
@@ -86,8 +86,8 @@
 
 ## 10. Trust and Safety UX
 
-- [ ] Explain where earn funds are routed
-- [ ] Explain why the route was chosen
+- [x] Explain where earn funds are routed
+- [x] Explain why the route was chosen
 - [ ] Show risk disclosure for yield
 - [ ] Show expected liquidity / unwind time
 - [ ] Add pause autopilot control

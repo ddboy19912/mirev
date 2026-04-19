@@ -64,6 +64,18 @@ When I receive money in stablecoins, I want it automatically organized so I can 
 4. Yield must be transparent, reversible, and bounded by policy.
 5. Users set intent; Mirev handles execution.
 
+## MVP Custody Model
+
+Mirev MVP is `app-assisted non-custodial`.
+
+This means:
+
+- users keep control of funds in their own wallets or transparent onchain positions
+- Mirev does not take omnibus custody of user assets
+- Mirev prepares policy-driven actions and transaction flows
+- users authorize critical onchain execution, especially routing into earn and moving funds back to spend
+- the automation layer is real, but execution remains user-authorized in MVP
+
 ## MVP Scope
 
 ### Core MVP
@@ -89,10 +101,11 @@ When I receive money in stablecoins, I want it automatically organized so I can 
    - current APY
    - recent automated actions
 10. Live automation feed / notification log for every automated movement, such as:
-   - deposit received
-   - funds allocated to spend/save/earn
-   - funds routed into earn
-   - funds returned to spend
+
+- deposit received
+- funds allocated to spend/save/earn
+- funds routed into earn
+- funds returned to spend
 
 ### Hackathon Demo MVP
 

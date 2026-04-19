@@ -34,13 +34,17 @@ Mirev is a Next.js 16 app for consumer-grade treasury automation across spend, s
 
 ## Local setup
 
-1. Copy `.env.example` into `.env` and replace `DATABASE_URL` with your Neon connection string if you want hosted Postgres.
-2. If you want local Postgres instead, keep the localhost `DATABASE_URL` and run `docker compose up -d`.
-3. Install dependencies with `pnpm install`.
-4. Generate the Prisma client with `pnpm db:generate`.
-5. Apply the schema with `pnpm db:push` for a quick setup or `pnpm db:migrate` if you want a migration tracked in the repo.
-6. Start the app with `pnpm dev`.
-7. Connect a Solana wallet and sign the login message on the home page.
+1. Copy `.env.example` into `.env`.
+2. Set `HELIUS_API_KEY` so Mirev can read connected wallet balances server-side.
+3. Replace `DATABASE_URL` with your Neon connection string if you want hosted Postgres.
+4. If you want local Postgres instead, keep the localhost `DATABASE_URL` and run `docker compose up -d`.
+5. `NEXT_PUBLIC_SOLANA_RPC_URL` is optional and only controls the client wallet connection endpoint.
+6. `NEXT_PUBLIC_STRATEGY_EXECUTION_MODE` is optional and defaults the app to `mock` or `live`.
+7. Install dependencies with `pnpm install`.
+8. Generate the Prisma client with `pnpm db:generate`.
+9. Apply the schema with `pnpm db:push` for a quick setup or `pnpm db:migrate` if you want a migration tracked in the repo.
+10. Start the app with `pnpm dev`.
+11. Connect a Solana wallet and sign the login message on the home page.
 
 ## Database health
 

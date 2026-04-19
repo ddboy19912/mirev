@@ -24,6 +24,22 @@ export function formatApyCopy(apy: StrategyApyQuote) {
 export function formatExecutionCopy(execution: StrategyExecutionLog) {
   const amount = `${execution.amount} USDC`;
 
+  if (execution.actionType === "deposit_received") {
+    return `Detected ${amount} in the connected wallet and recorded it as the current depositable USDC balance.`;
+  }
+
+  if (execution.actionType === "funds_allocated_spend") {
+    return `Allocated ${amount} to Spend so it remains available-now in the wallet.`;
+  }
+
+  if (execution.actionType === "funds_allocated_save") {
+    return `Allocated ${amount} to Save and kept it reserved in the wallet for later use.`;
+  }
+
+  if (execution.actionType === "funds_allocated_earn") {
+    return `Allocated ${amount} to Earn so Mirev can route it into Kamino.`;
+  }
+
   if (execution.actionType === "kamino_deposit") {
     if (execution.status === "submitted_by_user" && execution.txSignature) {
       return `User authorized a Kamino deposit of ${amount} from Save to Earn. Signature: ${execution.txSignature}.`;
@@ -49,6 +65,10 @@ export function formatExecutionCopy(execution: StrategyExecutionLog) {
   }
 
   return `Recorded ${execution.actionType} for ${amount}.`;
+}
+
+export function formatExecutionTimestamp(createdAt: string) {
+  return new Date(createdAt).toLocaleString();
 }
 
 export async function getRecentStrategyExecutionLogs(userId: string | null) {

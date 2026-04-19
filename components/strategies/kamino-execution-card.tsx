@@ -3,17 +3,15 @@
 import { startTransition, useState } from "react";
 
 import { useRouter } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { Transaction, VersionedTransaction } from "@solana/web3.js";
 
+import {
+  useMirevSession,
+  type SessionData,
+} from "@/lib/hooks/use-mirev-session";
 import type { StrategyExecutionMode } from "@/lib/strategies/types";
-
-type SessionData = {
-  sessionId: string;
-  userId: string;
-  walletAddress: string;
-  expiresAt: string;
-};
 
 type PreparedTransactionResponse = {
   actionId: string;
@@ -56,21 +54,22 @@ export function KaminoExecutionCard({
   executionMode,
 }: KaminoExecutionCardProps) {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const { connection } = useConnection();
   const { connected, publicKey, sendTransaction } = useWallet();
   const [amount, setAmount] = useState("25");
   const [isPending, setIsPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [lastSummary, setLastSummary] = useState<string | null>(null);
-
-  const connectedAddress = publicKey?.toBase58() ?? null;
-  const isAuthorizedWallet =
-    Boolean(initialSession) &&
-    Boolean(connectedAddress) &&
-    connectedAddress === initialSession?.walletAddress;
+  const {
+    connectedAddress,
+    session,
+    hasActiveWalletSession,
+    hasSessionMismatch,
+  } = useMirevSession(initialSession);
 
   async function runAction(action: "deposit" | "withdraw") {
-    if (!initialSession) {
+    if (!session) {
       setError("Sign in with your wallet before preparing Kamino actions.");
       return;
     }
@@ -83,7 +82,7 @@ export function KaminoExecutionCard({
       return;
     }
 
-    if (executionMode === "live" && !isAuthorizedWallet) {
+    if (executionMode === "live" && !hasActiveWalletSession) {
       setError(
         "The connected wallet must match the signed Mirev session before funds can move.",
       );
@@ -161,6 +160,14 @@ export function KaminoExecutionCard({
       setLastSummary(
         `${preparePayload.summary} Signature ${finalizePayload.txSignature} was logged in Mirev's feed.`,
       );
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: ["auth-session"],
+        }),
+        queryClient.invalidateQueries({
+          queryKey: ["wallet-token-balances"],
+        }),
+      ]);
       startTransition(() => {
         router.refresh();
       });
@@ -178,7 +185,7 @@ export function KaminoExecutionCard({
   return (
     <article className="rounded-[1.75rem] border border-slate-200 bg-white p-7 shadow-sm">
       <p className="text-sm tracking-[0.2em] text-slate-500 uppercase">
-        Kamino Execution
+        Kamino Controls
       </p>
       <div className="mt-4 inline-flex rounded-full border border-slate-200 bg-slate-50 p-1 text-xs font-semibold tracking-[0.16em] text-slate-600 uppercase">
         <button
@@ -253,7 +260,7 @@ export function KaminoExecutionCard({
             Session Wallet
           </p>
           <p className="mt-2 text-sm font-semibold text-slate-900">
-            {initialSession?.walletAddress ?? "No signed session"}
+            {session?.walletAddress ?? "No signed session"}
           </p>
         </div>
         <div className="rounded-2xl bg-slate-50 p-4">
@@ -266,10 +273,11 @@ export function KaminoExecutionCard({
         </div>
       </div>
 
-      {executionMode === "live" && !isAuthorizedWallet ? (
+      {executionMode === "live" && !hasActiveWalletSession ? (
         <p className="mt-5 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
-          Live Kamino actions are only enabled when the connected wallet matches
-          the signed Mirev session.
+          {hasSessionMismatch
+            ? "Wallet changed. Sign in with the connected wallet before using live Kamino controls."
+            : "Live Kamino actions are only enabled when the connected wallet matches the signed Mirev session."}
         </p>
       ) : null}
 

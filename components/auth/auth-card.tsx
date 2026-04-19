@@ -2,17 +2,16 @@
 
 import { startTransition, useState } from "react";
 
+import { useQueryClient } from "@tanstack/react-query";
 import bs58 from "bs58";
 import { useRouter } from "next/navigation";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import { useWallet } from "@solana/wallet-adapter-react";
 
-type SessionData = {
-  sessionId: string;
-  userId: string;
-  walletAddress: string;
-  expiresAt: string;
-};
+import {
+  useMirevSession,
+  type SessionData,
+} from "@/lib/hooks/use-mirev-session";
 
 type AuthCardProps = {
   initialSession: SessionData | null;
@@ -28,10 +27,16 @@ function shortenAddress(address: string) {
 
 export function AuthCard({ initialSession }: AuthCardProps) {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const { publicKey, connected, signMessage, wallet } = useWallet();
   const [error, setError] = useState<string | null>(null);
   const [isPending, setIsPending] = useState(false);
-  const [session, setSession] = useState(initialSession);
+  const {
+    connectedAddress,
+    session,
+    hasActiveWalletSession,
+    hasSessionMismatch,
+  } = useMirevSession(initialSession);
 
   async function handleSignIn() {
     if (!publicKey || !signMessage) {
@@ -88,7 +93,9 @@ export function AuthCard({ initialSession }: AuthCardProps) {
         );
       }
 
-      setSession(verifyPayload);
+      await queryClient.invalidateQueries({
+        queryKey: ["auth-session"],
+      });
       startTransition(() => {
         router.refresh();
       });
@@ -110,7 +117,9 @@ export function AuthCard({ initialSession }: AuthCardProps) {
         method: "POST",
       });
 
-      setSession(null);
+      await queryClient.invalidateQueries({
+        queryKey: ["auth-session"],
+      });
       startTransition(() => {
         router.refresh();
       });
@@ -120,11 +129,6 @@ export function AuthCard({ initialSession }: AuthCardProps) {
       setIsPending(false);
     }
   }
-
-  const connectedAddress = publicKey?.toBase58();
-  const isSignedInWallet = Boolean(
-    session && connectedAddress && session.walletAddress === connectedAddress,
-  );
 
   return (
     <article className="rounded-[1.75rem] border border-slate-200 bg-white p-7 shadow-sm">
@@ -144,14 +148,18 @@ export function AuthCard({ initialSession }: AuthCardProps) {
         <button
           type="button"
           onClick={handleSignIn}
-          disabled={!connected || !signMessage || isPending || isSignedInWallet}
+          disabled={
+            !connected || !signMessage || isPending || hasActiveWalletSession
+          }
           className="h-11 rounded-full bg-emerald-500 px-5 text-sm font-semibold text-slate-950 transition hover:bg-emerald-400 disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-500"
         >
           {isPending
             ? "Working..."
-            : isSignedInWallet
+            : hasActiveWalletSession
               ? "Session Active"
-              : "Sign In"}
+              : hasSessionMismatch
+                ? "Sign In This Wallet"
+                : "Sign In"}
         </button>
         <button
           type="button"
@@ -197,6 +205,13 @@ export function AuthCard({ initialSession }: AuthCardProps) {
             {new Date(session.expiresAt).toLocaleString()}
           </span>
           .
+        </p>
+      ) : null}
+
+      {hasSessionMismatch ? (
+        <p className="mt-4 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+          Connected wallet and signed session do not match. Sign in with the
+          newly connected wallet before allocating or routing funds.
         </p>
       ) : null}
 

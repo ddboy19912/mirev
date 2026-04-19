@@ -9,6 +9,7 @@ type PrepareRequest = {
   action?: "deposit" | "withdraw";
   amount?: string;
   executionMode?: string;
+  strategyAllocationId?: string;
 };
 
 function isValidAmount(amount: string) {
@@ -30,6 +31,7 @@ export async function POST(request: Request) {
   const action = body.action;
   const amount = body.amount?.trim();
   const executionMode = resolveExecutionMode(body.executionMode);
+  const strategyAllocationId = body.strategyAllocationId?.trim();
 
   if (!action || !amount) {
     return Response.json(
@@ -65,6 +67,26 @@ export async function POST(request: Request) {
   });
 
   try {
+    if (strategyAllocationId) {
+      const strategyAllocation = await prisma.strategyAllocation.findFirst({
+        where: {
+          id: strategyAllocationId,
+          userId: session.userId,
+        },
+      });
+
+      if (!strategyAllocation) {
+        throw new Error("Strategy allocation not found for this session.");
+      }
+
+      await prisma.strategyAllocation.update({
+        where: { id: strategyAllocation.id },
+        data: {
+          status: "routing_prepared",
+        },
+      });
+    }
+
     const preparedTransaction =
       action === "deposit"
         ? await kaminoStrategyAdapter.prepareDeposit({
@@ -83,6 +105,18 @@ export async function POST(request: Request) {
       actionId: actionRecord.id,
     });
   } catch (error) {
+    if (strategyAllocationId) {
+      await prisma.strategyAllocation.updateMany({
+        where: {
+          id: strategyAllocationId,
+          userId: session.userId,
+        },
+        data: {
+          status: "route_failed",
+        },
+      });
+    }
+
     await prisma.automationAction.update({
       where: { id: actionRecord.id },
       data: {

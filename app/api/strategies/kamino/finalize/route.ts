@@ -6,6 +6,7 @@ export const dynamic = "force-dynamic";
 type FinalizeRequest = {
   actionId?: string;
   txSignature?: string;
+  strategyAllocationId?: string;
 };
 
 export async function POST(request: Request) {
@@ -21,6 +22,7 @@ export async function POST(request: Request) {
   const body = (await request.json()) as FinalizeRequest;
   const actionId = body.actionId?.trim();
   const txSignature = body.txSignature?.trim();
+  const strategyAllocationId = body.strategyAllocationId?.trim();
 
   if (!actionId || !txSignature) {
     return Response.json(
@@ -47,6 +49,20 @@ export async function POST(request: Request) {
       status: "submitted_by_user",
     },
   });
+
+  if (strategyAllocationId) {
+    await prisma.strategyAllocation.updateMany({
+      where: {
+        id: strategyAllocationId,
+        userId: session.userId,
+      },
+      data: {
+        status: action.actionType.startsWith("kamino_mock_")
+          ? "mock_active"
+          : "active",
+      },
+    });
+  }
 
   return Response.json({
     id: updatedAction.id,

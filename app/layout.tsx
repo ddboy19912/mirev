@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import "@solana/wallet-adapter-react-ui/styles.css";
 
-import { SolanaWalletProvider } from "@/components/providers/solana-wallet-provider";
+import { AppProviders } from "@/components/providers/app-providers";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -17,7 +17,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="h-full antialiased">
       <body className="flex min-h-full flex-col">
-        <SolanaWalletProvider>{children}</SolanaWalletProvider>
+        <AppProviders>{children}</AppProviders>
       </body>
     </html>
   );

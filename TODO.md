@@ -29,13 +29,13 @@
 
 ## 4. Data Model
 
-- [ ] Create `users` model
-- [ ] Create `wallets` model
-- [ ] Create `bucket_policies` model
-- [ ] Create `accounts` model
-- [ ] Create `strategy_allocations` model
-- [ ] Create `automation_actions` model
-- [ ] Run initial migration
+- [x] Create `users` model
+- [x] Create `wallets` model
+- [x] Create `bucket_policies` model
+- [x] Create `accounts` model
+- [x] Create `strategy_allocations` model
+- [x] Create `automation_actions` model
+- [x] Run initial migration
 
 ## 5. Core Product Flows
 
@@ -60,36 +60,36 @@
 
 - [x] Pick one approved yield strategy
 - [x] Implement strategy adapter interface
-- [ ] Implement deposit into strategy
-- [ ] Implement withdraw from strategy
-- [ ] Surface current APY and liquidity characteristics
-- [ ] Add fallback behavior if strategy is unavailable
+- [x] Implement deposit into strategy
+- [x] Implement withdraw from strategy
+- [x] Surface current APY and liquidity characteristics
+- [x] Add fallback behavior if strategy is unavailable
 
 ## 8. Dashboard
 
-- [ ] Build home/dashboard screen
+- [x] Build home/dashboard screen
 - [ ] Show total balance
 - [ ] Show available-now balance
 - [ ] Show Spend / Save / Earn balances
-- [ ] Show current APY
-- [ ] Show recent automated actions
+- [x] Show current APY
+- [x] Show recent automated actions
 - [ ] Show liquidity buffer status
 
 ## 9. Automation Feed
 
-- [ ] Build plain-language activity feed
+- [x] Build plain-language activity feed
 - [ ] Log deposit received events
 - [ ] Log funds allocated events
-- [ ] Log funds routed to earn events
-- [ ] Log funds returned to spend events
+- [x] Log funds routed to earn events
+- [x] Log funds returned to spend events
 - [ ] Add timestamps and transaction status
 
 ## 10. Trust and Safety UX
 
 - [x] Explain where earn funds are routed
 - [x] Explain why the route was chosen
-- [ ] Show risk disclosure for yield
-- [ ] Show expected liquidity / unwind time
+- [x] Show risk disclosure for yield
+- [x] Show expected liquidity / unwind time
 - [ ] Add pause autopilot control
 - [ ] Add edit allocation rules flow
 

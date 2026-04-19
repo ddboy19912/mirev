@@ -1,0 +1,123 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id                  String               @id @default(cuid())
+  defaultCurrency     String               @default("USDC")
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+  wallets             Wallet[]
+  bucketPolicies      BucketPolicy[]
+  accounts            Account[]
+  strategyAllocations StrategyAllocation[]
+  automationActions   AutomationAction[]
+  authSessions        AuthSession[]
+}
+
+model Wallet {
+  id             String          @id @default(cuid())
+  userId         String
+  address        String          @unique
+  walletType     String
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  user           User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  authSessions   AuthSession[]
+  authChallenges AuthChallenge[]
+
+  @@index([userId])
+}
+
+model BucketPolicy {
+  id           String   @id @default(cuid())
+  userId       String
+  spendPercent Int
+  savePercent  Int
+  earnPercent  Int
+  riskProfile  String
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model Account {
+  id             String   @id @default(cuid())
+  userId         String
+  bucketType     String
+  token          String   @default("USDC")
+  currentBalance Decimal  @default(0) @db.Decimal(18, 6)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, bucketType])
+}
+
+model StrategyAllocation {
+  id              String   @id @default(cuid())
+  userId          String
+  strategyName    String
+  allocatedAmount Decimal  @default(0) @db.Decimal(18, 6)
+  estimatedApy    Decimal? @db.Decimal(5, 2)
+  status          String
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, status])
+}
+
+model AutomationAction {
+  id                String   @id @default(cuid())
+  userId            String
+  actionType        String
+  sourceBucket      String?
+  destinationBucket String?
+  amount            Decimal  @default(0) @db.Decimal(18, 6)
+  txSignature       String?
+  status            String
+  createdAt         DateTime @default(now())
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+}
+
+model AuthChallenge {
+  id            String   @id @default(cuid())
+  walletId      String
+  walletAddress String   @unique
+  nonce         String
+  statement     String
+  domain        String
+  expiresAt     DateTime
+  createdAt     DateTime @default(now())
+  wallet        Wallet   @relation(fields: [walletId], references: [id], onDelete: Cascade)
+
+  @@index([walletId])
+  @@index([expiresAt])
+}
+
+model AuthSession {
+  id          String   @id @default(cuid())
+  userId      String
+  walletId    String
+  tokenHash   String   @unique
+  expiresAt   DateTime
+  createdAt   DateTime @default(now())
+  lastUsedAt  DateTime @default(now())
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  wallet      Wallet   @relation(fields: [walletId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([walletId])
+  @@index([expiresAt])
+}

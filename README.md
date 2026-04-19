@@ -1,36 +1,61 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Mirev
 
-## Getting Started
+Mirev is a Next.js 16 app for consumer-grade treasury automation across spend, save, and earn buckets.
 
-First, run the development server:
+## Database stack
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- Postgres is the confirmed database.
+- Prisma is the confirmed ORM.
+- Neon is the preferred hosted Postgres target.
+- Docker Compose is included for local Postgres development.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Wallet auth stack
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- Solana Wallet Adapter for wallet connection
+- Signed message challenge for login
+- HttpOnly session cookie for app auth
+- Postgres + Prisma for wallet, challenge, and session persistence
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## MVP custody model
 
-## Learn More
+- `App-assisted non-custodial`
+- User funds remain user-controlled in the wallet or in transparent protocol positions tied to the user
+- Mirev does not take omnibus custody of assets
+- Mirev prepares policy-driven actions and execution flows
+- Users authorize critical onchain actions such as routing into Kamino Lend and withdrawing back to Spend
 
-To learn more about Next.js, take a look at the following resources:
+## MVP earn strategy
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- Approved venue: `Kamino Lend`
+- Strategy key: `kamino-usdc-supply`
+- Asset routed: `USDC`
+- Product behavior: idle USDC in the `Earn` bucket is supplied into Kamino Lend while `Spend` remains liquid outside the strategy
+- Current implementation state: strategy config, adapter interface, and mocked adapter responses are wired into the app UI
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Local setup
 
-## Deploy on Vercel
+1. Copy `.env.example` into `.env` and replace `DATABASE_URL` with your Neon connection string if you want hosted Postgres.
+2. If you want local Postgres instead, keep the localhost `DATABASE_URL` and run `docker compose up -d`.
+3. Install dependencies with `pnpm install`.
+4. Generate the Prisma client with `pnpm db:generate`.
+5. Apply the schema with `pnpm db:push` for a quick setup or `pnpm db:migrate` if you want a migration tracked in the repo.
+6. Start the app with `pnpm dev`.
+7. Connect a Solana wallet and sign the login message on the home page.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Database health
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- App page: `/`
+- JSON health check: `/api/health/db`
+
+The health route performs a simple Prisma query so you can verify whether the configured Postgres database is reachable.
+
+## Prisma model coverage
+
+The initial schema includes:
+
+- `User`
+- `Wallet`
+- `BucketPolicy`
+- `Account`
+- `StrategyAllocation`
+- `AutomationAction`

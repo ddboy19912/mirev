@@ -19,7 +19,7 @@ type ChallengeRequest = {
 export async function POST(request: Request) {
   const body = (await request.json()) as ChallengeRequest;
   const walletAddress = body.walletAddress?.trim();
-  const walletType = body.walletType?.trim() ?? "solana";
+  const walletType = body.walletType?.trim() ?? "phantom";
 
   if (!walletAddress) {
     return Response.json(

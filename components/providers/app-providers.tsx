@@ -1,7 +1,7 @@
 "use client";
 
+import { PhantomWalletProvider } from "@/components/providers/phantom-wallet-provider";
 import { QueryProvider } from "@/components/providers/query-provider";
-import { SolanaWalletProvider } from "@/components/providers/solana-wallet-provider";
 
 type AppProvidersProps = {
   children: React.ReactNode;
@@ -10,7 +10,7 @@ type AppProvidersProps = {
 export function AppProviders({ children }: AppProvidersProps) {
   return (
     <QueryProvider>
-      <SolanaWalletProvider>{children}</SolanaWalletProvider>
+      <PhantomWalletProvider>{children}</PhantomWalletProvider>
     </QueryProvider>
   );
 }

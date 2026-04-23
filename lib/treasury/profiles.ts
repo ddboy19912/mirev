@@ -24,7 +24,7 @@ export const AUTOPILOT_PROFILES: Record<
   balanced: {
     label: "Balanced",
     description:
-      "Keep healthy liquidity while still routing a meaningful slice into Earn.",
+      "Keep healthy liquidity while still routing a meaningful slice of supported assets into Earn.",
     spendPercent: 45,
     savePercent: 30,
     earnPercent: 25,
@@ -32,7 +32,7 @@ export const AUTOPILOT_PROFILES: Record<
   growth: {
     label: "Growth",
     description:
-      "Keep only a lean liquid buffer and push more idle USDC into Earn.",
+      "Keep only a lean liquid buffer and push more idle supported assets into Earn.",
     spendPercent: 30,
     savePercent: 20,
     earnPercent: 50,

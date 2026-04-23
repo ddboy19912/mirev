@@ -57,9 +57,7 @@ export async function POST(request: Request) {
         userId: session.userId,
       },
       data: {
-        status: action.actionType.startsWith("kamino_mock_")
-          ? "mock_active"
-          : "active",
+        status: "active",
       },
     });
   }

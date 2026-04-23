@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { useWallet } from "@solana/wallet-adapter-react";
+import { useAppWallet } from "@/lib/hooks/use-app-wallet";
 
 export type SessionData = {
   sessionId: string;
@@ -21,15 +21,15 @@ async function fetchSession() {
   });
 
   if (!response.ok) {
-    throw new Error("Could not refresh the current Mirev session.");
+    throw new Error("Could not refresh the current session.");
   }
 
   return (await response.json()) as SessionResponse;
 }
 
-export function useMirevSession(initialSession: SessionData | null) {
-  const { publicKey } = useWallet();
-  const connectedAddress = publicKey?.toBase58() ?? null;
+export function useSession(initialSession: SessionData | null) {
+  const wallet = useAppWallet();
+  const connectedAddress = wallet.address;
 
   const query = useQuery({
     queryKey: ["auth-session", connectedAddress ?? "disconnected"],

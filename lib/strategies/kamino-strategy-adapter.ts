@@ -1,4 +1,3 @@
-import { KAMINO_USDC_SUPPLY_CONFIG } from "@/lib/strategies/config";
 import {
   buildKaminoDepositTransaction,
   buildKaminoWithdrawTransaction,
@@ -7,51 +6,23 @@ import {
 import type {
   StrategyAdapter,
   StrategyApyQuote,
+  StrategyConfig,
   StrategyLiquidityState,
   StrategyPreparedTransaction,
   StrategyPrepareParams,
 } from "@/lib/strategies/types";
 
 export class KaminoStrategyAdapter implements StrategyAdapter {
-  readonly config = KAMINO_USDC_SUPPLY_CONFIG;
-
-  private createMockPreparedTransaction({
-    action,
-    walletAddress,
-    amount,
-  }: {
-    action: "deposit" | "withdraw";
-    walletAddress: string;
-    amount: string;
-  }): StrategyPreparedTransaction {
-    return {
-      actionId: null,
-      executionMode: "mock",
-      requiresUserSignature: false,
-      serializedTransaction: null,
-      encoding: null,
-      status: "mock_ready",
-      walletAddress,
-      amount,
-      token: this.config.token,
-      marketPubkey: this.config.marketPubkey,
-      reservePubkey: this.config.fallbackReservePubkey,
-      venueLabel: this.config.protocol,
-      summary:
-        action === "deposit"
-          ? `Prepared a mock Kamino deposit for ${amount} ${this.config.token}. No funds will move in mock mode.`
-          : `Prepared a mock Kamino withdrawal for ${amount} ${this.config.token} back to Spend. No funds will move in mock mode.`,
-    };
-  }
+  constructor(readonly config: StrategyConfig) {}
 
   async getApy(): Promise<StrategyApyQuote> {
     try {
-      const reserve = await getKaminoReserveMetrics();
+      const reserve = await getKaminoReserveMetrics(this.config);
 
       if (!reserve) {
         return {
           apyBps: null,
-          source: "mock",
+          source: "fallback",
           fetchedAt: new Date().toISOString(),
           note: "Kamino reserve data is not available yet, so live supply APY could not be resolved.",
         };
@@ -66,7 +37,7 @@ export class KaminoStrategyAdapter implements StrategyAdapter {
     } catch {
       return {
         apyBps: null,
-        source: "mock",
+        source: "fallback",
         fetchedAt: new Date().toISOString(),
         note: "Kamino API was unavailable during this request, so live APY could not be displayed.",
       };
@@ -76,17 +47,8 @@ export class KaminoStrategyAdapter implements StrategyAdapter {
   async prepareDeposit({
     walletAddress,
     amount,
-    executionMode,
   }: StrategyPrepareParams): Promise<StrategyPreparedTransaction> {
-    if (executionMode === "mock") {
-      return this.createMockPreparedTransaction({
-        action: "deposit",
-        walletAddress,
-        amount,
-      });
-    }
-
-    const reserve = await getKaminoReserveMetrics();
+    const reserve = await getKaminoReserveMetrics(this.config);
     const reservePubkey = reserve?.reserve ?? this.config.fallbackReservePubkey;
     const serializedTransaction = await buildKaminoDepositTransaction({
       walletAddress,
@@ -97,35 +59,25 @@ export class KaminoStrategyAdapter implements StrategyAdapter {
 
     return {
       actionId: null,
-      executionMode: "live",
       requiresUserSignature: true,
       serializedTransaction,
       encoding: "base64",
       status: "awaiting_user_signature",
       walletAddress,
       amount,
-      token: this.config.token,
+      token: this.config.assetSymbol,
       marketPubkey: this.config.marketPubkey,
       reservePubkey,
       venueLabel: this.config.protocol,
-      summary: `Prepared a Kamino deposit for ${amount} ${this.config.token}. User signature is required before funds move into the Earn bucket strategy.`,
+      summary: `Prepared a Kamino deposit for ${amount} ${this.config.assetSymbol}. User signature is required before funds move into the Earn bucket strategy.`,
     };
   }
 
   async prepareWithdraw({
     walletAddress,
     amount,
-    executionMode,
   }: StrategyPrepareParams): Promise<StrategyPreparedTransaction> {
-    if (executionMode === "mock") {
-      return this.createMockPreparedTransaction({
-        action: "withdraw",
-        walletAddress,
-        amount,
-      });
-    }
-
-    const reserve = await getKaminoReserveMetrics();
+    const reserve = await getKaminoReserveMetrics(this.config);
     const reservePubkey = reserve?.reserve ?? this.config.fallbackReservePubkey;
     const serializedTransaction = await buildKaminoWithdrawTransaction({
       walletAddress,
@@ -136,24 +88,23 @@ export class KaminoStrategyAdapter implements StrategyAdapter {
 
     return {
       actionId: null,
-      executionMode: "live",
       requiresUserSignature: true,
       serializedTransaction,
       encoding: "base64",
       status: "awaiting_user_signature",
       walletAddress,
       amount,
-      token: this.config.token,
+      token: this.config.assetSymbol,
       marketPubkey: this.config.marketPubkey,
       reservePubkey,
       venueLabel: this.config.protocol,
-      summary: `Prepared a Kamino withdrawal for ${amount} ${this.config.token} back to Spend. User signature is required before funds move.`,
+      summary: `Prepared a Kamino withdrawal for ${amount} ${this.config.assetSymbol} back to Spend. User signature is required before funds move.`,
     };
   }
 
   async getLiquidityState(): Promise<StrategyLiquidityState> {
     try {
-      const reserve = await getKaminoReserveMetrics();
+      const reserve = await getKaminoReserveMetrics(this.config);
 
       if (!reserve) {
         return {
@@ -186,5 +137,3 @@ export class KaminoStrategyAdapter implements StrategyAdapter {
     }
   }
 }
-
-export const kaminoStrategyAdapter = new KaminoStrategyAdapter();

@@ -1,12 +1,12 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { useWallet } from "@solana/wallet-adapter-react";
 import {
   serializeTokenDescriptors,
   type TokenDescriptorInput,
 } from "@/lib/portfolio/tokens";
 import type { WalletTokenBalance } from "@/lib/portfolio/helius";
+import { useAppWallet } from "@/lib/hooks/use-app-wallet";
 
 type WalletBalancesResponse = {
   walletAddress: string;
@@ -52,8 +52,8 @@ export function useWalletTokenBalances({
   enabled?: boolean;
   refetchInterval?: number | false;
 }) {
-  const { publicKey } = useWallet();
-  const walletAddress = publicKey?.toBase58() ?? null;
+  const wallet = useAppWallet();
+  const walletAddress = wallet.address;
   const serializedTokens = serializeTokenDescriptors(tokens);
 
   return useQuery({

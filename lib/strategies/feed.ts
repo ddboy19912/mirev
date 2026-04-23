@@ -56,14 +56,6 @@ export function formatExecutionCopy(execution: StrategyExecutionLog) {
     return `Prepared a Kamino withdrawal of ${amount} from Earn back to Spend. Waiting for the user's wallet signature.`;
   }
 
-  if (execution.actionType === "kamino_mock_deposit") {
-    return `Mock mode prepared a demo deposit of ${amount} from Save to Earn. No funds moved onchain.`;
-  }
-
-  if (execution.actionType === "kamino_mock_withdraw") {
-    return `Mock mode prepared a demo withdrawal of ${amount} from Earn back to Spend. No funds moved onchain.`;
-  }
-
   return `Recorded ${execution.actionType} for ${amount}.`;
 }
 

@@ -3,8 +3,8 @@ import type { StrategyConfig, StrategyId } from "@/lib/strategies/types";
 export const KAMINO_USDC_SUPPLY_CONFIG: StrategyConfig = {
   id: "kamino-usdc-supply",
   protocol: "Kamino Lend",
-  token: "USDC",
-  tokenMint: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+  assetSymbol: "USDC",
+  assetMint: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
   bucket: "Earn",
   category: "lending",
   network: "Solana",
@@ -17,6 +17,8 @@ export const KAMINO_USDC_SUPPLY_CONFIG: StrategyConfig = {
   riskNote:
     "Lending market risk remains protocol-dependent, so Mirev treats this as the only approved MVP earn rail and keeps the spend buffer outside the strategy.",
 };
+
+export const DEFAULT_STRATEGY_ID: StrategyId = "kamino-usdc-supply";
 
 export const STRATEGY_CONFIGS: Record<StrategyId, StrategyConfig> = {
   "kamino-usdc-supply": KAMINO_USDC_SUPPLY_CONFIG,

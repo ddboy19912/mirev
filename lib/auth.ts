@@ -11,7 +11,7 @@ export const AUTH_COOKIE_NAME = "mirev_session";
 const AUTH_SESSION_TTL_MS = 1000 * 60 * 60 * 24 * 7;
 const AUTH_CHALLENGE_TTL_MS = 1000 * 60 * 10;
 const AUTH_STATEMENT =
-  "Sign this message to authenticate with Mirev and start your smart treasury session.";
+  "Sign this message with Phantom to authenticate with Mirev and start your treasury session.";
 
 export type AuthenticatedSession = {
   sessionId: string;

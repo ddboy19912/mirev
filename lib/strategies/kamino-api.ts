@@ -1,4 +1,4 @@
-import { KAMINO_USDC_SUPPLY_CONFIG } from "@/lib/strategies/config";
+import type { StrategyConfig } from "@/lib/strategies/types";
 
 const KAMINO_API_BASE_URL = "https://api.kamino.finance";
 
@@ -38,16 +38,16 @@ async function fetchFromKamino<T>(path: string, init?: RequestInit) {
   return (await response.json()) as T;
 }
 
-export async function getKaminoReserveMetrics() {
+export async function getKaminoReserveMetrics(config: StrategyConfig) {
   const metrics = await fetchFromKamino<KaminoReserveMetrics[]>(
-    `/kamino-market/${KAMINO_USDC_SUPPLY_CONFIG.marketPubkey}/reserves/metrics?env=${KAMINO_USDC_SUPPLY_CONFIG.cluster}`,
+    `/kamino-market/${config.marketPubkey}/reserves/metrics?env=${config.cluster}`,
   );
 
   const reserve =
     metrics.find(
       (entry) =>
-        entry.liquidityTokenMint === KAMINO_USDC_SUPPLY_CONFIG.tokenMint ||
-        entry.liquidityToken === KAMINO_USDC_SUPPLY_CONFIG.token,
+        entry.liquidityTokenMint === config.assetMint ||
+        entry.liquidityToken === config.assetSymbol,
     ) ?? null;
 
   return reserve;

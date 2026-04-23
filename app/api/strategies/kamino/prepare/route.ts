@@ -1,14 +1,12 @@
 import { getCurrentSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { resolveExecutionMode } from "@/lib/strategies/execution-mode";
-import { kaminoStrategyAdapter } from "@/lib/strategies/kamino-strategy-adapter";
+import { getStrategyAdapter } from "@/lib/strategies/registry";
 
 export const dynamic = "force-dynamic";
 
 type PrepareRequest = {
   action?: "deposit" | "withdraw";
   amount?: string;
-  executionMode?: string;
   strategyAllocationId?: string;
 };
 
@@ -30,7 +28,6 @@ export async function POST(request: Request) {
   const body = (await request.json()) as PrepareRequest;
   const action = body.action;
   const amount = body.amount?.trim();
-  const executionMode = resolveExecutionMode(body.executionMode);
   const strategyAllocationId = body.strategyAllocationId?.trim();
 
   if (!action || !amount) {
@@ -50,23 +47,17 @@ export async function POST(request: Request) {
   const actionRecord = await prisma.automationAction.create({
     data: {
       userId: session.userId,
-      actionType:
-        action === "deposit"
-          ? executionMode === "mock"
-            ? "kamino_mock_deposit"
-            : "kamino_deposit"
-          : executionMode === "mock"
-            ? "kamino_mock_withdraw"
-            : "kamino_withdraw",
+      actionType: action === "deposit" ? "kamino_deposit" : "kamino_withdraw",
       sourceBucket: action === "deposit" ? "Save" : "Earn",
       destinationBucket: action === "deposit" ? "Earn" : "Spend",
       amount,
-      status:
-        executionMode === "mock" ? "mock_prepared" : "awaiting_user_signature",
+      status: "awaiting_user_signature",
     },
   });
 
   try {
+    const strategyAdapter = getStrategyAdapter("kamino-usdc-supply");
+
     if (strategyAllocationId) {
       const strategyAllocation = await prisma.strategyAllocation.findFirst({
         where: {
@@ -89,15 +80,13 @@ export async function POST(request: Request) {
 
     const preparedTransaction =
       action === "deposit"
-        ? await kaminoStrategyAdapter.prepareDeposit({
+        ? await strategyAdapter.prepareDeposit({
             walletAddress: session.walletAddress,
             amount,
-            executionMode,
           })
-        : await kaminoStrategyAdapter.prepareWithdraw({
+        : await strategyAdapter.prepareWithdraw({
             walletAddress: session.walletAddress,
             amount,
-            executionMode,
           });
 
     return Response.json({

@@ -124,7 +124,7 @@ export async function POST(request: Request) {
       where: {
         userId: session.userId,
         status: {
-          in: ["pending_route", "routing_prepared", "active", "mock_active"],
+          in: ["pending_route", "routing_prepared", "active"],
         },
       },
       data: {

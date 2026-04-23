@@ -1,13 +1,12 @@
 export type StrategyId = "kamino-usdc-supply";
 
 export type StrategyCategory = "lending";
-export type StrategyExecutionMode = "live" | "mock";
 
 export type StrategyConfig = {
   id: StrategyId;
   protocol: "Kamino Lend";
-  token: "USDC";
-  tokenMint: string;
+  assetSymbol: string;
+  assetMint: string;
   bucket: "Earn";
   category: StrategyCategory;
   network: "Solana";
@@ -27,18 +26,17 @@ export type StrategyLiquidityState = {
 
 export type StrategyApyQuote = {
   apyBps: number | null;
-  source: "kamino-api" | "mock";
+  source: "kamino-api" | "fallback";
   fetchedAt: string;
   note: string;
 };
 
 export type StrategyPreparedTransaction = {
   actionId: string | null;
-  executionMode: StrategyExecutionMode;
   requiresUserSignature: boolean;
   serializedTransaction: string | null;
   encoding: "base64" | null;
-  status: "awaiting_user_signature" | "mock_ready";
+  status: "awaiting_user_signature";
   walletAddress: string;
   amount: string;
   token: string;
@@ -62,7 +60,6 @@ export type StrategyExecutionLog = {
 export type StrategyPrepareParams = {
   walletAddress: string;
   amount: string;
-  executionMode: StrategyExecutionMode;
 };
 
 export interface StrategyAdapter {
